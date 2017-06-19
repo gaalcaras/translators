@@ -2,7 +2,10 @@
 
 Custom translators for Zotero, developed during my PhD, targeting mainly mailing list archives.
 
+If you don't know anything about Zotero translators, I recommend checking out my blog post ([in french](https://sociologs.com/fr/approche-pratique-archives-en-ligne/) or [in english](https://sociologs.com/en/practical-approach-online-archives/)) for a very gentle introduction.
+
 ## How to use / install
+
 
 You can copy these files into the `translators` directory in your Zotero folder and start using them.
 
