@@ -17,7 +17,6 @@
 // eslint-disable-next-line no-unused-vars
 function detectWeb (doc, url) {
   var msgId = ZU.xpathText(doc, '//font/text()')
-  Zotero.debug(msgId)
 
   if (msgId !== null && msgId.indexOf('Message-ID: ')) {
     return 'email'
@@ -28,24 +27,36 @@ function detectWeb (doc, url) {
 function doWeb (doc, url) {
   var email = new Zotero.Item('email')
 
+  var metadata = ZU.xpathText(doc, '//font').split('\n')
+
   /* Elements extraction */
-  var listTxt = ZU.xpathText(doc, '//font/a[1]')
-  var subTxt = ZU.xpathText(doc, '//font/a[2]')
-  var fromTxt = ZU.xpathText(doc, '//font/a[3]')
-  var dateTxt = ZU.xpathText(doc, '//font/a[4]')
+  var listTxt = metadata[1]
+  var subTxt = metadata[2]
+  var fromTxt = metadata[3]
+  var dateTxt = metadata[4]
 
   /* Name Extraction */
-  var namePattern = new RegExp(/(.*)\s</)
+  var namePattern = new RegExp(/:\s+(.*)\s</)
   var authorName = namePattern.exec(fromTxt)[1]
 
   /* Date Extraction */
-  var datePattern = new RegExp(/(\d{4}-\d{2}-\d{2})/)
+  var datePattern = new RegExp(/:\s+(\d{4}-\d{2}-\d{2})/)
   var sentDate = datePattern.exec(dateTxt)[1]
 
-  email.title = subTxt
-  email.shortTitle = listTxt + ' - Mailing list ARChives'
+  /* Title Extraction */
+  var titlePattern = new RegExp(/:\s+(.*)/)
+  var title = titlePattern.exec(subTxt)[1]
+  email.title = title
 
-  email.creators.push(ZU.cleanAuthor(authorName))
+  /* List Extraction */
+  var listPattern = new RegExp(/:\s+(.*)/)
+  var list = listPattern.exec(listTxt)[1]
+  /* Capitalize list name */
+  list = list.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); })
+
+  email.shortTitle = list + ' - Mailing list ARChives'
+
+  email.creators.push(ZU.cleanAuthor(authorName, 'author'))
   email.date = sentDate
 
   email.language = 'en'
@@ -57,4 +68,56 @@ function doWeb (doc, url) {
 }
 
 /** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://marc.info/?l=linux-kernel&m=87602757922179&w=2",
+		"items": [
+			{
+				"itemType": "email",
+				"subject": "Mutt && the list",
+				"creators": [
+					{
+						"firstName": "Aaron",
+						"lastName": "Tiensivu",
+						"creatorType": "author"
+					}
+				],
+				"date": "1997-08-29",
+				"language": "en",
+				"shortTitle": "Linux-kernel - Mailing list ARChives",
+				"url": "http://marc.info/?l=linux-kernel&m=87602757922179&w=2",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://marc.info/?l=git&m=116233880601299&w=2",
+		"items": [
+			{
+				"itemType": "email",
+				"subject": "Re: [PATCH] make git-push a bit more verbose",
+				"creators": [
+					{
+						"firstName": "Junio C.",
+						"lastName": "Hamano",
+						"creatorType": "author"
+					}
+				],
+				"date": "2006-10-31",
+				"language": "en",
+				"shortTitle": "Git - Mailing list ARChives",
+				"url": "http://marc.info/?l=git&m=116233880601299&w=2",
+				"attachments": [],
+				"tags": [],
+				"notes": [],
+				"seeAlso": []
+			}
+		]
+	}
+]
 /** END TEST CASES **/
