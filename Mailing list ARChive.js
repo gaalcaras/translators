@@ -36,7 +36,7 @@ function doWeb (doc, url) {
   var dateTxt = metadata[4]
 
   /* Name Extraction */
-  var namePattern = new RegExp(/:\s+(.*)\s</)
+  var namePattern = new RegExp(/:\s+"?([^"]*)"?\s</)
   var authorName = namePattern.exec(fromTxt)[1]
 
   /* Date Extraction */
